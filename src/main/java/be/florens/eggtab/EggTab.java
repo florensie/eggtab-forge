@@ -22,6 +22,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.util.Arrays;
 import java.util.Objects;
 
 @Mod(EggTab.MODID)
@@ -55,25 +56,25 @@ public class EggTab {
                 }
             };
 
-            for (SpawnEggItem item : SpawnEggItem.getEggs()) {
+            SpawnEggItem.getEggs().forEach(item -> {
                 LOGGER.info("Egged: " + Objects.requireNonNull(ForgeRegistries.ITEMS.getKey(item)).toString());
                 ((ItemAccessor) item).setGroup(EGG_GROUP);
-            }
+            });
         }
 
         // Enchanted Books group
         if (Config.booksGroup) {
             LOGGER.info("Moving enchanted books");
+
+            // Remove enchantments from all groups
+            Arrays.stream(ItemGroup.GROUPS).forEach(ItemGroup::setRelevantEnchantmentTypes);
+
             BOOK_GROUP = new ItemGroup(MODID + ".book_group") {
                 @OnlyIn(Dist.CLIENT)
                 public ItemStack createIcon() {
                     return new ItemStack(Items.ENCHANTED_BOOK);
                 }
             }.setRelevantEnchantmentTypes(EnchantmentType.values()); // Add all EnchantmentTypes
-
-            // Remove enchantments from Tools and Combat groups
-            ItemGroup.TOOLS.setRelevantEnchantmentTypes();
-            ItemGroup.COMBAT.setRelevantEnchantmentTypes();
         }
     }
 }
