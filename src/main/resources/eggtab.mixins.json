@@ -1,0 +1,7 @@
+{
+  "required": true,
+  "package": "be.florens.eggtab.mixin",
+  "compatibilityLevel": "JAVA_8",
+  "refmap": "eggtab.refmap.json",
+  "mixins": ["ItemAccessor"]
+}
