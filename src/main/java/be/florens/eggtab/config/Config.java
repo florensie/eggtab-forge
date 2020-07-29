@@ -7,7 +7,7 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import org.apache.commons.lang3.tuple.Pair;
 
-@Mod.EventBusSubscriber(modid = EggTab.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
+@Mod.EventBusSubscriber(modid = EggTab.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class Config {
 
     public static final ForgeConfigSpec CLIENT_SPEC;

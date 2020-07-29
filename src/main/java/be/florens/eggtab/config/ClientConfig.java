@@ -14,11 +14,11 @@ public class ClientConfig {
 
         eggsGroup = builder
                 .comment("Move spawn eggs to seperate tab")
-                .translation(EggTab.MODID + ".config.eggs_group")
+                .translation(EggTab.MOD_ID + ".config.eggs_group")
                 .define("eggs_group", true);
         booksGroup = builder
                 .comment("Move enchanted books to seperate tab")
-                .translation(EggTab.MODID + ".config.books_group")
+                .translation(EggTab.MOD_ID + ".config.books_group")
                 .define("books_group", true);
 
         builder.pop();

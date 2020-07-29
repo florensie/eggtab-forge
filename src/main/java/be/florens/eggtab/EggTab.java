@@ -23,11 +23,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.Arrays;
-import java.util.Objects;
 
-@Mod(EggTab.MODID)
+@Mod(EggTab.MOD_ID)
 public class EggTab {
-    public static final String MODID = "eggtab";
+    public static final String MOD_ID = "eggtab";
     private static final Logger LOGGER = LogManager.getLogger();
 
     public static ItemGroup EGG_GROUP;
@@ -49,16 +48,19 @@ public class EggTab {
         // Spawn Eggs group
         if (Config.eggsGroup) {
             LOGGER.info("Moving spawn eggs");
-            EGG_GROUP = new ItemGroup(MODID + ".egg_group") {
+            EGG_GROUP = new ItemGroup(MOD_ID + ".egg_group") {
                 @OnlyIn(Dist.CLIENT)
                 public ItemStack createIcon() {
                     return new ItemStack(Items.CREEPER_SPAWN_EGG);
                 }
             };
 
-            SpawnEggItem.getEggs().forEach(item -> {
-                LOGGER.info("Egged: " + Objects.requireNonNull(ForgeRegistries.ITEMS.getKey(item)).toString());
-                ((ItemAccessor) item).setGroup(EGG_GROUP);
+            // Note: We get them from the registry because SpawnEggItem.getEggs is missing eggs in certain cases somehow (see endergetic)
+            ForgeRegistries.ITEMS.getEntries().forEach(entry -> {
+                if (entry.getValue() instanceof SpawnEggItem)  {
+                    LOGGER.info("Egged: " + entry.getKey().toString());
+                    ((ItemAccessor) entry.getValue()).setGroup(EGG_GROUP);
+                }
             });
         }
 
@@ -69,7 +71,7 @@ public class EggTab {
             // Remove enchantments from all groups
             Arrays.stream(ItemGroup.GROUPS).forEach(ItemGroup::setRelevantEnchantmentTypes);
 
-            BOOK_GROUP = new ItemGroup(MODID + ".book_group") {
+            BOOK_GROUP = new ItemGroup(MOD_ID + ".book_group") {
                 @OnlyIn(Dist.CLIENT)
                 public ItemStack createIcon() {
                     return new ItemStack(Items.ENCHANTED_BOOK);
