@@ -6,6 +6,8 @@ import be.florens.eggtab.mixin.ItemAccessor;
 import net.minecraft.enchantment.EnchantmentType;
 import net.minecraft.item.*;
 import net.minecraft.util.IItemProvider;
+import net.minecraft.util.RegistryKey;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.MinecraftForge;
@@ -23,6 +25,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.Arrays;
+import java.util.Map;
+import java.util.Objects;
 
 @Mod(EggTab.MOD_ID)
 public class EggTab {
@@ -57,8 +61,8 @@ public class EggTab {
 
             // Note: We get them from the registry because SpawnEggItem.getEggs is missing eggs in certain cases somehow (see endergetic)
             ForgeRegistries.ITEMS.getEntries().forEach(entry -> {
-                if (isSpawnEgg(entry.getValue()))  {
-                    LOGGER.info("Egged: " + entry.getKey().toString());
+                if (isSpawnEgg(entry.getValue())) {
+                    LOGGER.info("Egged: " + Objects.requireNonNull(getRegsistryEntryIdentifier(entry)).toString());
                     ((ItemAccessor) entry.getValue()).setGroup(EGG_GROUP);
                 }
             });
@@ -89,5 +93,19 @@ public class EggTab {
         }
 
         return isSpawnEgg;
+    }
+
+    /**
+     * Multi-version boogaloo
+     */
+    public static ResourceLocation getRegsistryEntryIdentifier(Map.Entry<?, ?> entry) {
+        if (entry.getKey() instanceof ResourceLocation) { // < 1.16.1
+            return (ResourceLocation) entry.getKey();
+        } else if (entry.getKey() instanceof RegistryKey) { // > 1.16.2
+            //noinspection rawtypes
+            RegistryKey key = (RegistryKey) entry.getKey();
+            return key.func_240901_a_();
+        }
+        return null;
     }
 }
