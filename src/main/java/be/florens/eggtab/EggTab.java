@@ -1,5 +1,6 @@
 package be.florens.eggtab;
 
+import be.florens.eggtab.compat.DragonMountsLegacyCompat;
 import be.florens.eggtab.config.Config;
 import be.florens.eggtab.mixin.ItemAccessor;
 import net.minecraft.enchantment.EnchantmentType;
@@ -11,6 +12,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.ExtensionPoint;
+import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
@@ -57,8 +59,15 @@ public class EggTab {
 
             // Note: We get them from the registry because SpawnEggItem.getEggs is missing eggs in certain cases somehow (see endergetic)
             ForgeRegistries.ITEMS.getEntries().forEach(entry -> {
-                if (entry.getValue() instanceof SpawnEggItem)  {
-                    LOGGER.info("Egged: " + entry.getKey().toString());
+                boolean isSpawnEgg = entry.getValue() instanceof SpawnEggItem;
+
+                // Compat
+                if (!isSpawnEgg && ModList.get().isLoaded("dragonmounts")) {
+                    isSpawnEgg = DragonMountsLegacyCompat.isSpawnEggItem(entry.getValue());
+                }
+
+                if (isSpawnEgg)  {
+                    LOGGER.info("Egged: " + entry.getKey().func_240901_a_().toString());
                     ((ItemAccessor) entry.getValue()).setGroup(EGG_GROUP);
                 }
             });

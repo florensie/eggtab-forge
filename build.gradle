@@ -44,8 +44,16 @@ minecraft {
     }
 }
 
+repositories {
+    maven {
+        url = "https://www.cursemaven.com"
+    }
+}
+
 dependencies {
-    minecraft 'net.minecraftforge:forge:1.16.1-32.0.75'
+    minecraft 'net.minecraftforge:forge:1.16.2-33.0.37'
+
+    compile fg.deobf('curse.maven:dragonmounts:3046318')
 }
 
 jar {
