@@ -4,10 +4,8 @@ import be.florens.eggtab.compat.DragonMountsLegacyCompat;
 import be.florens.eggtab.config.Config;
 import be.florens.eggtab.mixin.ItemAccessor;
 import net.minecraft.enchantment.EnchantmentType;
-import net.minecraft.item.ItemGroup;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.item.SpawnEggItem;
+import net.minecraft.item.*;
+import net.minecraft.util.IItemProvider;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.MinecraftForge;
@@ -59,15 +57,8 @@ public class EggTab {
 
             // Note: We get them from the registry because SpawnEggItem.getEggs is missing eggs in certain cases somehow (see endergetic)
             ForgeRegistries.ITEMS.getEntries().forEach(entry -> {
-                boolean isSpawnEgg = entry.getValue() instanceof SpawnEggItem;
-
-                // Compat
-                if (!isSpawnEgg && ModList.get().isLoaded("dragonmounts")) {
-                    isSpawnEgg = DragonMountsLegacyCompat.isSpawnEggItem(entry.getValue());
-                }
-
-                if (isSpawnEgg)  {
-                    LOGGER.info("Egged: " + entry.getKey().func_240901_a_().toString());
+                if (isSpawnEgg(entry.getValue()))  {
+                    LOGGER.info("Egged: " + entry.getKey().toString());
                     ((ItemAccessor) entry.getValue()).setGroup(EGG_GROUP);
                 }
             });
@@ -87,5 +78,16 @@ public class EggTab {
                 }
             }.setRelevantEnchantmentTypes(EnchantmentType.values()); // Add all EnchantmentTypes
         }
+    }
+
+    public static boolean isSpawnEgg(Item item) {
+        boolean isSpawnEgg = item instanceof SpawnEggItem;
+
+        // Compat
+        if (!isSpawnEgg && ModList.get().isLoaded("dragonmounts")) {
+            isSpawnEgg = DragonMountsLegacyCompat.isSpawnEggItem(item);
+        }
+
+        return isSpawnEgg;
     }
 }
