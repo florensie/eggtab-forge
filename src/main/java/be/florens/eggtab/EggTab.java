@@ -1,18 +1,16 @@
 package be.florens.eggtab;
 
-import be.florens.eggtab.compat.DragonMountsLegacyCompat;
 import be.florens.eggtab.config.Config;
 import be.florens.eggtab.mixin.ItemAccessor;
+import com.github.wolfshotz.wyrmroost.items.DragonEggItem;
 import net.minecraft.enchantment.EnchantmentType;
 import net.minecraft.item.*;
-import net.minecraft.util.IItemProvider;
 import net.minecraft.util.RegistryKey;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.ExtensionPoint;
-import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
@@ -23,7 +21,9 @@ import net.minecraftforge.registries.ForgeRegistries;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import wolfshotz.dml.misc.LazySpawnEggItem;
 
+import javax.annotation.Nonnull;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Objects;
@@ -32,6 +32,7 @@ import java.util.Objects;
 public class EggTab {
     public static final String MOD_ID = "eggtab";
     private static final Logger LOGGER = LogManager.getLogger();
+    // private static final Map<String, CompatProvider> COMPAT_PROVIDERS =
 
     public static ItemGroup EGG_GROUP;
     public static ItemGroup BOOK_GROUP;
@@ -54,7 +55,7 @@ public class EggTab {
             LOGGER.info("Moving spawn eggs");
             EGG_GROUP = new ItemGroup(MOD_ID + ".egg_group") {
                 @OnlyIn(Dist.CLIENT)
-                public ItemStack createIcon() {
+                public @Nonnull ItemStack createIcon() {
                     return new ItemStack(Items.CREEPER_SPAWN_EGG);
                 }
             };
@@ -77,7 +78,7 @@ public class EggTab {
 
             BOOK_GROUP = new ItemGroup(MOD_ID + ".book_group") {
                 @OnlyIn(Dist.CLIENT)
-                public ItemStack createIcon() {
+                public @Nonnull ItemStack createIcon() {
                     return new ItemStack(Items.ENCHANTED_BOOK);
                 }
             }.setRelevantEnchantmentTypes(EnchantmentType.values()); // Add all EnchantmentTypes
@@ -87,10 +88,13 @@ public class EggTab {
     public static boolean isSpawnEgg(Item item) {
         boolean isSpawnEgg = item instanceof SpawnEggItem;
 
-        // Compat
-        if (!isSpawnEgg && ModList.get().isLoaded("dragonmounts")) {
-            isSpawnEgg = DragonMountsLegacyCompat.isSpawnEggItem(item);
-        }
+        try {
+            isSpawnEgg |= item instanceof LazySpawnEggItem;
+        } catch (NoClassDefFoundError ignored) {}
+
+        try {
+            isSpawnEgg |= item instanceof com.github.wolfshotz.wyrmroost.items.LazySpawnEggItem;
+        } catch (NoClassDefFoundError ignored) {}
 
         return isSpawnEgg;
     }
@@ -104,7 +108,7 @@ public class EggTab {
         } else if (entry.getKey() instanceof RegistryKey) { // > 1.16.2
             //noinspection rawtypes
             RegistryKey key = (RegistryKey) entry.getKey();
-            return key.func_240901_a_();
+            return key.getLocation();
         }
         return null;
     }
